@@ -12,16 +12,16 @@ namespace EventsAndActionsStuff
 			Count = 0;
 		}
 
-		public ActionSubscriber(ActionThing at)
+		public ActionSubscriber(ActionEvent at)
 		{
 			Interlocked.Increment(ref Count);
 			at.MyEvent += HandleAction;
 			Console.WriteLine($"ActionSubscriber created.");
 		}
 
-		private void HandleAction(ActionThing obj)
+		private void HandleAction(ActionEvent obj)
 		{
-			Console.WriteLine($"{nameof(ActionThing)} MyEvent raised.");
+			Console.WriteLine($"{nameof(ActionEvent)} MyEvent raised.");
 		}
 
 		~ActionSubscriber()

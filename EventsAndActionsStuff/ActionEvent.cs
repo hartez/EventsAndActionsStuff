@@ -2,9 +2,9 @@
 
 namespace EventsAndActionsStuff
 {
-	public class ActionThing : IDisposable
+	public class ActionEvent : IDisposable
 	{
-		public event Action<ActionThing> MyEvent;
+		public event Action<ActionEvent> MyEvent;
 
 		public void Dispose()
 		{

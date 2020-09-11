@@ -8,7 +8,7 @@ namespace EventsAndActionsStuff
 
 		public void Dispose()
 		{
-			MyEvent = null;
+			SetEventNull();
 		}
 
 		public void OnMyEvent()

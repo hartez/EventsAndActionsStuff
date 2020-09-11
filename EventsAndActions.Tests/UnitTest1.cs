@@ -151,6 +151,25 @@ namespace EventsAndActions.Tests
 		}
 
 		[Test]
+		public void NoObjectInitializersWithEvents()
+		{
+			bool firstHappened = false;
+			bool secondHappened = false;
+
+			var x = new EventThing();
+			// With Events, we required two statements to initialize
+			x.MyEvent += (sender, args) => { firstHappened = true; };
+
+			// And still do multiple handlers, like this:
+			x.MyEvent += (sender, args) => { secondHappened = true; };
+
+			x.OnMyEvent();
+
+			Assert.True(firstHappened);
+			Assert.True(secondHappened);
+		}
+
+		[Test]
 		public void BadEncapsulation()
 		{
 			bool firstHappened = false;

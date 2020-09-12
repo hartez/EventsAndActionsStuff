@@ -1,6 +1,7 @@
 using EventsAndActionsStuff;
 using NUnit.Framework;
 using System;
+using System.Diagnostics;
 
 namespace EventsAndActions.Tests
 {
@@ -134,11 +135,11 @@ namespace EventsAndActions.Tests
 			bool firstHappened = false;
 			bool secondHappened = false;
 
-			var x = new ActionWithBadEncapsulation() 
+			var x = new PublicAction() 
 			{ 
 				// So if we use a publicly accessible Action (without the event keyword),
 				// we can do this, which is cool
-				MyEvent = (a) => { firstHappened = true; },
+				MyEvent = (a) => { firstHappened = true; }
 			};
 
 			// And still do multiple handlers, like this:
@@ -175,7 +176,7 @@ namespace EventsAndActions.Tests
 			bool firstHappened = false;
 			bool secondHappened = false;
 
-			var x = new ActionWithBadEncapsulation()
+			var x = new PublicAction()
 			{
 				MyEvent = (a) => { firstHappened = true; }
 			};
@@ -200,7 +201,7 @@ namespace EventsAndActions.Tests
 			bool secondHappened = false;
 			bool thirdHappened = false;
 
-			var x = new ActionWithBetterEncapsulation()
+			var x = new LessPublicAction()
 			{
 				MyEvent = (a) => { firstHappened = true; }
 			};
@@ -226,23 +227,62 @@ namespace EventsAndActions.Tests
 		}
 
 		[Test]
-		public void ActionRemovalWorksWithBadEncapsulation()
+		public void ActionAddRemoveLambda()
 		{
-			bool firstHappened = false;
+			var x = new PublicAction();
 
-			var x = new ActionWithBadEncapsulation()
-			{
-				MyEvent = (a) => { firstHappened = true; }
-			};
+			x.MyEvent += (a) => ActionToRemove2(a);
+			x.MyEvent -= (a) => ActionToRemove2(a);
+
+			x.OnMyEvent();
+		}
+
+		[Test]
+		public void ActionAddRemoveMethod()
+		{
+			var x = new PublicAction();
 
 			x.MyEvent += ActionToRemove2;
-
-			// This will fail - ActionToRemove will still be called
 			x.MyEvent -= ActionToRemove2;
-			
-			x.OnMyEvent();
 
-			Assert.True(firstHappened);
+			x.OnMyEvent();
+		}
+
+		[Test]
+		public void ActionAddRemoveMethodRef()
+		{
+			var x = new PublicAction();
+
+			Action<PublicAction> actionToRemove = ActionToRemove2;
+
+			x.MyEvent += actionToRemove;
+			x.MyEvent -= actionToRemove;
+
+			x.OnMyEvent();
+		}
+
+		[Test]
+		public void ActionAddRemoveLocalFunction()
+		{
+			var x = new PublicAction();
+
+			void actionToRemove(PublicAction a) { ActionToRemove2(a); }
+
+			x.MyEvent += actionToRemove;
+			x.MyEvent -= actionToRemove;
+
+			x.OnMyEvent();
+		}
+
+		[Test]
+		public void ActionAddRemoveAnonymousFunction()
+		{
+			var x = new PublicAction();
+
+			x.MyEvent += (PublicAction a) => { ActionToRemove2(a); };
+			x.MyEvent -= (PublicAction a) => { ActionToRemove2(a); };
+
+			x.OnMyEvent();
 		}
 
 		[Test]
@@ -250,7 +290,7 @@ namespace EventsAndActions.Tests
 		{
 			bool firstHappened = false;
 
-			var x = new ActionWithBetterEncapsulation()
+			var x = new LessPublicAction()
 			{
 				MyEvent = (a) => { firstHappened = true; }
 			};
@@ -267,34 +307,78 @@ namespace EventsAndActions.Tests
 			Assert.True(firstHappened);
 		}
 
-		private void ActionToRemove(ActionWithBetterEncapsulation action) 
+		private void ActionToRemove(LessPublicAction action) 
 		{
 			Assert.Fail("This should not be called");
 		}
 
-		private void ActionToRemove2(ActionWithBadEncapsulation action)
+		private void ActionToRemove2(PublicAction action)
+		{
+			Assert.Fail("This should not be called");
+		}
+
+		private void HandlerToRemove(object sender, EventArgs e)
 		{
 			Assert.Fail("This should not be called");
 		}
 
 		[Test]
-		public void EventRemoval()
+		public void EventAddRemoveLambda()
 		{
-			bool happened = false;
+			var x = new EventThing();
 
+			x.MyEvent += (sender, args) => HandlerToRemove(sender, args);
+			x.MyEvent -= (sender, args) => HandlerToRemove(sender, args);
+
+			x.OnMyEvent();
+		}
+
+		[Test]
+		public void EventAddRemoveMethod()
+		{
 			var x = new EventThing();
 
 			x.MyEvent += HandlerToRemove;
 			x.MyEvent -= HandlerToRemove;
 
 			x.OnMyEvent();
-
-			Assert.False(happened, "We removed that handler");
 		}
 
-		private void HandlerToRemove(object sender, EventArgs e)
+		[Test]
+		public void EventAddRemoveMethodRef()
 		{
-			Assert.Fail("This should not be called");
+			var x = new EventThing();
+
+			EventHandler handlerToRemove = HandlerToRemove;
+
+			x.MyEvent += handlerToRemove;
+			x.MyEvent -= handlerToRemove;
+
+			x.OnMyEvent();
+		}
+
+		[Test]
+		public void EventAddRemoveLocalFunction()
+		{
+			var x = new EventThing();
+
+			void handler(object sender, EventArgs args) { HandlerToRemove(sender, args); }
+
+			x.MyEvent += handler;
+			x.MyEvent -= handler;
+
+			x.OnMyEvent();
+		}
+
+		[Test]
+		public void EventAddRemoveAnonymousFunction()
+		{
+			var x = new EventThing();
+
+			x.MyEvent += (object sender, EventArgs args) => { HandlerToRemove(sender, args); };
+			x.MyEvent -= (object sender, EventArgs args) => { HandlerToRemove(sender, args); };
+
+			x.OnMyEvent();
 		}
 	}
 }

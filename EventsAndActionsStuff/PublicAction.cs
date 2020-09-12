@@ -2,9 +2,9 @@
 
 namespace EventsAndActionsStuff
 {
-	public class ActionWithBadEncapsulation : IDisposable
+	public class PublicAction : IDisposable
 	{
-		public Action<ActionWithBadEncapsulation> MyEvent { get; set; }
+		public Action<PublicAction> MyEvent { get; set; }
 
 		public void Dispose()
 		{

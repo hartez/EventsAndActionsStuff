@@ -2,11 +2,11 @@
 
 namespace EventsAndActionsStuff
 {
-	public class ActionWithBetterEncapsulation : IDisposable
+	public class LessPublicAction : IDisposable
 	{
-		private Action<ActionWithBetterEncapsulation> myEvent;
+		private Action<LessPublicAction> myEvent;
 
-		public Action<ActionWithBetterEncapsulation> MyEvent
+		public Action<LessPublicAction> MyEvent
 		{
 			get
 			{
